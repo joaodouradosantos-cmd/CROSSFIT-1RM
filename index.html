@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CrossFit 1RM Tracker</title>
 
-  <!-- Manifesto da PWA -->
   <link rel="manifest" href="manifest.json" />
 
   <style>
@@ -52,7 +51,7 @@
       display: block;
       margin-bottom: 4px;
     }
-    input, select, button {
+    input, select, textarea, button {
       padding: 8px 10px;
       border-radius: 10px;
       background: #020617;
@@ -61,7 +60,11 @@
       font: inherit;
       box-sizing: border-box;
     }
-    input:focus, select:focus {
+    textarea {
+      resize: vertical;
+      min-height: 70px;
+    }
+    input:focus, select:focus, textarea:focus {
       outline: none;
       border-color: #22c55e;
       box-shadow: 0 0 0 1px #22c55e55;
@@ -81,6 +84,19 @@
     .btn-primary:active {
       transform: scale(0.98);
     }
+    .btn-small {
+      padding: 4px 8px;
+      font-size: 0.75rem;
+      border-radius: 999px;
+      cursor: pointer;
+      background: #111827;
+      border-color: #374151;
+      color: #e5e7eb;
+    }
+    .btn-small.danger {
+      border-color: #b91c1c;
+      color: #fecaca;
+    }
     table {
       width: 100%;
       border-collapse: collapse;
@@ -91,6 +107,7 @@
       text-align: center;
       border-bottom: 1px solid #1e293b;
       white-space: nowrap;
+      vertical-align: top;
     }
     th {
       color: #9ca3af;
@@ -108,6 +125,33 @@
       font-size: 0.75rem;
       color: #9ca3af;
     }
+    .tabs {
+      display: flex;
+      margin-bottom: 12px;
+      gap: 6px;
+    }
+    .tab-btn {
+      flex: 1;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid #1f2937;
+      background: #020617;
+      color: #9ca3af;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+    .tab-btn.active {
+      background: #22c55e;
+      border-color: #22c55e;
+      color: #022c12;
+      font-weight: 600;
+    }
+    .section {
+      display: none;
+    }
+    .section.active {
+      display: block;
+    }
     @media (max-width: 600px) {
       th:nth-child(n+7),
       td:nth-child(n+7) {
@@ -119,47 +163,118 @@
 <body>
 <div class="app">
   <h1>CrossFit 1RM Tracker</h1>
-  <div class="subtitle">Regista o teu 1RM e vê automaticamente as percentagens.</div>
+  <div class="subtitle">Regista o teu 1RM e acompanha os teus treinos num só sítio.</div>
 
-  <div class="card">
-    <div class="form-row">
-      <div class="field">
-        <label for="exercise">Exercício</label>
-        <select id="exercise"></select>
-      </div>
-      <div class="field">
-        <label for="oneRm">1RM (kg)</label>
-        <input id="oneRm" type="number" step="0.5" placeholder="Ex.: 150" />
-      </div>
-    </div>
-    <button class="btn-primary" id="addBtn">Guardar / Atualizar</button>
-    <p class="muted">Os dados ficam guardados apenas neste dispositivo (localStorage).</p>
+  <div class="tabs">
+    <button class="tab-btn active" data-target="sec-1rm">1RM</button>
+    <button class="tab-btn" data-target="sec-diario">Diário de treinos</button>
   </div>
 
-  <div class="card">
-    <div class="scroll">
-      <table>
-        <thead>
-          <tr>
-            <th>Exercício</th>
-            <th>1RM</th>
-            <th>50%</th>
-            <th>60%</th>
-            <th>70%</th>
-            <th>75%</th>
-            <th>80%</th>
-            <th>85%</th>
-            <th>90%</th>
-            <th>95%</th>
-          </tr>
-        </thead>
-        <tbody id="tableBody"></tbody>
-      </table>
+  <!-- SECÇÃO 1: 1RM -->
+  <div id="sec-1rm" class="section active">
+    <div class="card">
+      <div class="form-row">
+        <div class="field">
+          <label for="exercise">Exercício</label>
+          <select id="exercise"></select>
+        </div>
+        <div class="field">
+          <label for="oneRm">1RM (kg)</label>
+          <input id="oneRm" type="number" step="0.5" placeholder="Ex.: 150" />
+        </div>
+      </div>
+      <button class="btn-primary" id="addBtn">Guardar / Atualizar</button>
+      <p class="muted">Os dados ficam guardados apenas neste dispositivo (localStorage).</p>
+    </div>
+
+    <div class="card">
+      <div class="scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Exercício</th>
+              <th>1RM</th>
+              <th>50%</th>
+              <th>60%</th>
+              <th>70%</th>
+              <th>75%</th>
+              <th>80%</th>
+              <th>85%</th>
+              <th>90%</th>
+              <th>95%</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECÇÃO 2: DIÁRIO DE TREINOS -->
+  <div id="sec-diario" class="section">
+    <div class="card">
+      <div class="form-row">
+        <div class="field">
+          <label for="dDate">Data</label>
+          <input id="dDate" type="date" />
+        </div>
+        <div class="field">
+          <label for="dWod">WOD / Treino</label>
+          <input id="dWod" type="text" placeholder="Ex.: Cindy, EMOM 10’..." />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="field">
+          <label for="dTipo">Tipo</label>
+          <select id="dTipo">
+            <option value="AMRAP">AMRAP</option>
+            <option value="FOR TIME">FOR TIME</option>
+            <option value="EMOM">EMOM</option>
+            <option value="TÉCNICA">Técnica / Força</option>
+            <option value="OUTRO">Outro</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="dResultado">Resultado</label>
+          <input id="dResultado" type="text" placeholder="Ex.: 17 rondas, 12:35, 5x5 @ 80kg..." />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="field" style="flex:1 1 100%">
+          <label for="dNotas">Notas</label>
+          <textarea id="dNotas" placeholder="Como te sentiste, PRs, ajustes (RX / scaled)..."></textarea>
+        </div>
+      </div>
+      <button class="btn-primary" id="dAddBtn">Guardar treino</button>
+      <p class="muted">Os treinos são guardados apenas neste dispositivo. Podes apagar ou atualizar mais tarde.</p>
+    </div>
+
+    <div class="card">
+      <div class="form-row" style="justify-content: space-between; align-items: center;">
+        <span class="muted">Histórico de treinos (últimos primeiro)</span>
+        <button class="btn-small danger" id="dClearBtn">Apagar todos</button>
+      </div>
+      <div class="scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>WOD</th>
+              <th>Tipo</th>
+              <th>Resultado</th>
+              <th>Notas</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="dTableBody"></tbody>
+        </table>
+      </div>
     </div>
   </div>
 </div>
 
 <script>
+/* ---------- DADOS 1RM ---------- */
 const MOVES = [
   "Chest Press",
   "Back Squat","Front Squat","Overhead Squat","Deadlift","Sumo Deadlift",
@@ -174,9 +289,29 @@ const MOVES = [
 ];
 
 const PERCENTS = [0.5,0.6,0.7,0.75,0.8,0.85,0.9,0.95];
-const STORAGE = "crossfit_1rm_pwa";
+const STORAGE_1RM = "crossfit_1rm_pwa";
+const STORAGE_DIARIO = "crossfit_diario_pwa";
 
-let data = JSON.parse(localStorage.getItem(STORAGE) || "{}");
+let data1rm = {};
+let dataDiario = [];
+
+// Helpers
+function loadData() {
+  try {
+    data1rm = JSON.parse(localStorage.getItem(STORAGE_1RM) || "{}");
+  } catch(e) { data1rm = {}; }
+
+  try {
+    dataDiario = JSON.parse(localStorage.getItem(STORAGE_DIARIO) || "[]");
+  } catch(e) { dataDiario = []; }
+}
+
+function save1RM() {
+  localStorage.setItem(STORAGE_1RM, JSON.stringify(data1rm));
+}
+function saveDiario() {
+  localStorage.setItem(STORAGE_DIARIO, JSON.stringify(dataDiario));
+}
 
 const sel   = document.getElementById("exercise");
 const rm    = document.getElementById("oneRm");
@@ -197,9 +332,9 @@ function formatKg(v) {
   return v.toFixed(1).replace(".", ",") + " kg";
 }
 
-function renderTable() {
+function renderTable1RM() {
   body.innerHTML = "";
-  const names = Object.keys(data).sort();
+  const names = Object.keys(data1rm).sort();
   if (names.length === 0) {
     const tr = document.createElement("tr");
     const td = document.createElement("td");
@@ -210,13 +345,12 @@ function renderTable() {
     body.appendChild(tr);
     return;
   }
-
   names.forEach(name => {
     const tr = document.createElement("tr");
     tr.innerHTML =
       "<td class='ex-name'>" + name + "</td>" +
-      "<td>" + formatKg(data[name]) + "</td>" +
-      PERCENTS.map(p => "<td>" + formatKg(data[name] * p) + "</td>").join("");
+      "<td>" + formatKg(data1rm[name]) + "</td>" +
+      PERCENTS.map(p => "<td>" + formatKg(data1rm[name] * p) + "</td>").join("");
     body.appendChild(tr);
   });
 }
@@ -225,16 +359,121 @@ addBtn.addEventListener("click", () => {
   const ex  = sel.value;
   const val = parseFloat((rm.value || "").replace(",", "."));
   if (!ex || !val || val <= 0) return;
-  data[ex] = val;
-  localStorage.setItem(STORAGE, JSON.stringify(data));
-  renderTable();
+  data1rm[ex] = val;
+  save1RM();
+  renderTable1RM();
   rm.value = "";
 });
 
-initSelect();
-renderTable();
+/* ---------- DIÁRIO ---------- */
+const dDate      = document.getElementById("dDate");
+const dWod       = document.getElementById("dWod");
+const dTipo      = document.getElementById("dTipo");
+const dResultado = document.getElementById("dResultado");
+const dNotas     = document.getElementById("dNotas");
+const dAddBtn    = document.getElementById("dAddBtn");
+const dClearBtn  = document.getElementById("dClearBtn");
+const dTableBody = document.getElementById("dTableBody");
 
-// Registo do service worker (para PWA)
+function todayISO() {
+  const d = new Date();
+  const m = String(d.getMonth()+1).padStart(2,"0");
+  const day = String(d.getDate()).padStart(2,"0");
+  return d.getFullYear() + "-" + m + "-" + day;
+}
+
+function renderDiario() {
+  dTableBody.innerHTML = "";
+  if (!dataDiario.length) {
+    const tr = document.createElement("tr");
+    const td = document.createElement("td");
+    td.colSpan = 6;
+    td.textContent = "Ainda não tens treinos registados.";
+    td.className = "muted";
+    tr.appendChild(td);
+    dTableBody.appendChild(tr);
+    return;
+  }
+
+  // mostrar últimos primeiro
+  const entries = [...dataDiario].sort((a,b) => (b.id || 0) - (a.id || 0));
+
+  entries.forEach(entry => {
+    const tr = document.createElement("tr");
+    const dataFmt = entry.date || "";
+    tr.innerHTML =
+      "<td>" + dataFmt + "</td>" +
+      "<td>" + (entry.wod || "") + "</td>" +
+      "<td>" + (entry.tipo || "") + "</td>" +
+      "<td>" + (entry.resultado || "") + "</td>" +
+      "<td style='white-space:normal;'>" + (entry.notas || "") + "</td>";
+    const tdAcoes = document.createElement("td");
+    const btnApagar = document.createElement("button");
+    btnApagar.textContent = "X";
+    btnApagar.className = "btn-small danger";
+    btnApagar.addEventListener("click", () => {
+      if (confirm("Apagar este treino?")) {
+        dataDiario = dataDiario.filter(e => e.id !== entry.id);
+        saveDiario();
+        renderDiario();
+      }
+    });
+    tdAcoes.appendChild(btnApagar);
+    tr.appendChild(tdAcoes);
+    dTableBody.appendChild(tr);
+  });
+}
+
+dAddBtn.addEventListener("click", () => {
+  const date = dDate.value || todayISO();
+  const wod  = (dWod.value || "").trim();
+  const tipo = dTipo.value;
+  const resultado = (dResultado.value || "").trim();
+  const notas     = (dNotas.value || "").trim();
+
+  if (!wod && !resultado && !notas) return;
+
+  const entry = {
+    id: Date.now(),
+    date, wod, tipo, resultado, notas
+  };
+  dataDiario.push(entry);
+  saveDiario();
+  renderDiario();
+
+  dWod.value = "";
+  dResultado.value = "";
+  dNotas.value = "";
+});
+
+dClearBtn.addEventListener("click", () => {
+  if (!dataDiario.length) return;
+  if (confirm("Apagar todos os treinos do diário?")) {
+    dataDiario = [];
+    saveDiario();
+    renderDiario();
+  }
+});
+
+/* ---------- TABS ---------- */
+document.querySelectorAll(".tab-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+    document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+    btn.classList.add("active");
+    const target = btn.getAttribute("data-target");
+    document.getElementById(target).classList.add("active");
+  });
+});
+
+/* ---------- INIT ---------- */
+loadData();
+initSelect();
+renderTable1RM();
+dDate.value = todayISO();
+renderDiario();
+
+// Service worker
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
     navigator.serviceWorker.register("./service-worker.js")
