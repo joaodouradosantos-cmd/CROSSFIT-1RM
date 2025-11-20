@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CrossFit 1RM Tracker</title>
+
+  <!-- Manifesto da PWA -->
+  <link rel="manifest" href="manifest.json" />
+
+  <style>
+    :root { font-family: system-ui, sans-serif; }
+    body {
+      margin: 0;
+      background: #0f172a;
+      color: #e5e7eb;
+      display: flex;
+      justify-content: center;
+    }
+    .app {
+      width: 100%;
+      max-width: 900px;
+      padding: 16px;
+      box-sizing: border-box;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 4px;
+    }
+    .subtitle {
+      text-align: center;
+      font-size: 0.9rem;
+      color: #9ca3af;
+      margin-bottom: 16px;
+    }
+    .card {
+      background: #020617;
+      border-radius: 14px;
+      padding: 12px;
+      margin-bottom: 16px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+    }
+    .form-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    label {
+      font-size: 0.8rem;
+      color: #9ca3af;
+      display: block;
+      margin-bottom: 4px;
+    }
+    input, select, button {
+      padding: 8px 10px;
+      border-radius: 10px;
+      background: #020617;
+      color: #e5e7eb;
+      border: 1px solid #1e293b;
+      font: inherit;
+      box-sizing: border-box;
+    }
+    input:focus, select:focus {
+      outline: none;
+      border-color: #22c55e;
+      box-shadow: 0 0 0 1px #22c55e55;
+    }
+    .field {
+      flex: 1;
+      min-width: 140px;
+    }
+    .btn-primary {
+      background: #22c55e;
+      border-color: #22c55e;
+      color: #022c12;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .btn-primary:active {
+      transform: scale(0.98);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+    }
+    th, td {
+      padding: 6px;
+      text-align: center;
+      border-bottom: 1px solid #1e293b;
+      white-space: nowrap;
+    }
+    th {
+      color: #9ca3af;
+    }
+    td.ex-name {
+      text-align: left;
+    }
+    .scroll {
+      max-height: 60vh;
+      overflow: auto;
+      border: 1px solid #1e293b;
+      border-radius: 10px;
+    }
+    .muted {
+      font-size: 0.75rem;
+      color: #9ca3af;
+    }
+    @media (max-width: 600px) {
+      th:nth-child(n+7),
+      td:nth-child(n+7) {
+        display: none; /* em ecrãs pequenos mostra só até 80% */
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <h1>CrossFit 1RM Tracker</h1>
+  <div class="subtitle">Regista o teu 1RM e vê automaticamente as percentagens.</div>
+
+  <div class="card">
+    <div class="form-row">
+      <div class="field">
+        <label for="exercise">Exercício</label>
+        <select id="exercise"></select>
+      </div>
+      <div class="field">
+        <label for="oneRm">1RM (kg)</label>
+        <input id="oneRm" type="number" step="0.5" placeholder="Ex.: 150" />
+      </div>
+    </div>
+    <button class="btn-primary" id="addBtn">Guardar / Atualizar</button>
+    <p class="muted">Os dados ficam guardados apenas neste dispositivo (localStorage).</p>
+  </div>
+
+  <div class="card">
+    <div class="scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Exercício</th>
+            <th>1RM</th>
+            <th>50%</th>
+            <th>60%</th>
+            <th>70%</th>
+            <th>75%</th>
+            <th>80%</th>
+            <th>85%</th>
+            <th>90%</th>
+            <th>95%</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+const MOVES = [
+  "Chest Press",
+  "Back Squat","Front Squat","Overhead Squat","Deadlift","Sumo Deadlift",
+  "Romanian Deadlift (RDL)","Power Clean","Squat Clean","Clean & Jerk",
+  "Power Snatch","Squat Snatch","Push Press","Push Jerk","Split Jerk",
+  "Strict Press","Thruster","Barbell Row","Bent Over Row","Good Morning",
+  "Lunges com barra","Hip Thrust com barra","Dumbbell Press",
+  "Dumbbell Bench Press","Dumbbell Snatch","Dumbbell Clean",
+  "Dumbbell Clean & Jerk","Dumbbell Thruster","Dumbbell Row",
+  "Dumbbell Lunges","Kettlebell Swing","Kettlebell Clean","Kettlebell Snatch",
+  "Goblet Squat","Kettlebell Lunges"
+];
+
+const PERCENTS = [0.5,0.6,0.7,0.75,0.8,0.85,0.9,0.95];
+const STORAGE = "crossfit_1rm_pwa";
+
+let data = JSON.parse(localStorage.getItem(STORAGE) || "{}");
+
+const sel   = document.getElementById("exercise");
+const rm    = document.getElementById("oneRm");
+const body  = document.getElementById("tableBody");
+const addBtn = document.getElementById("addBtn");
+
+function initSelect() {
+  sel.innerHTML = "";
+  MOVES.forEach(m => {
+    const o = document.createElement("option");
+    o.value = o.textContent = m;
+    sel.appendChild(o);
+  });
+}
+
+function formatKg(v) {
+  if (isNaN(v)) return "-";
+  return v.toFixed(1).replace(".", ",") + " kg";
+}
+
+function renderTable() {
+  body.innerHTML = "";
+  const names = Object.keys(data).sort();
+  if (names.length === 0) {
+    const tr = document.createElement("tr");
+    const td = document.createElement("td");
+    td.colSpan = 10;
+    td.textContent = "Ainda não tens exercícios registados.";
+    td.className = "muted";
+    tr.appendChild(td);
+    body.appendChild(tr);
+    return;
+  }
+
+  names.forEach(name => {
+    const tr = document.createElement("tr");
+    tr.innerHTML =
+      "<td class='ex-name'>" + name + "</td>" +
+      "<td>" + formatKg(data[name]) + "</td>" +
+      PERCENTS.map(p => "<td>" + formatKg(data[name] * p) + "</td>").join("");
+    body.appendChild(tr);
+  });
+}
+
+addBtn.addEventListener("click", () => {
+  const ex  = sel.value;
+  const val = parseFloat((rm.value || "").replace(",", "."));
+  if (!ex || !val || val <= 0) return;
+  data[ex] = val;
+  localStorage.setItem(STORAGE, JSON.stringify(data));
+  renderTable();
+  rm.value = "";
+});
+
+initSelect();
+renderTable();
+
+// Registo do service worker (para PWA)
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./service-worker.js")
+      .catch(err => console.log("SW falhou:", err));
+  });
+}
+</script>
+</body>
+</html>
