@@ -1,8 +1,20 @@
 {
-  "name": "CrossFit 1RM Tracker",
-  "short_name": "1RM CrossFit",
-  "start_url": "index.html",
+  "name": "Cross Moita – 1RM & Diário",
+  "short_name": "1RM Diário",
+  "start_url": "./",
   "display": "standalone",
-  "background_color": "#020617",
-  "theme_color": "#0f172a"
+  "background_color": "#0f172a",
+  "theme_color": "#22c55e",
+  "icons": [
+    {
+      "src": "imagens/crossmoita_logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "imagens/crossmoita_logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
 }
