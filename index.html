@@ -168,7 +168,7 @@
       object-fit: cover;
       background: #020617;
       border: 1px solid #1e293b;
-      display: none;
+      display: none; /* só mostra se a imagem existir */
     }
     @media (max-width: 600px) {
       th:nth-child(n+7),
@@ -182,7 +182,7 @@
 <div class="app">
 
   <header>
-    <!-- novo logótipo Cross Moita -->
+    <!-- logótipo da box -->
     <img id="appLogo" src="imagens/crossmoita_logo.png" alt="Cross Moita Health & Fitness" />
     <div class="subtitle">1RM & Diário de Treinos – uso pessoal</div>
   </header>
@@ -299,7 +299,7 @@
 </div>
 
 <script>
-// ----------------------- CONFIG EXERCÍCIOS -----------------------
+// ----------------------- EXERCÍCIOS -----------------------
 const MOVES = [
   "Chest Press",
   "Back Squat","Front Squat","Overhead Squat","Deadlift","Sumo Deadlift",
@@ -313,7 +313,7 @@ const MOVES = [
   "Goblet Squat","Kettlebell Lunges"
 ];
 
-// mapa exercício -> ficheiro de imagem (pasta /imagens)
+// Mapa exercício -> ficheiro de imagem (quando existirem)
 const IMAGE_MAP = {
   "Chest Press": "chest_press.png",
   "Back Squat": "back_squat.png",
@@ -376,17 +376,14 @@ const dAddBtn    = document.getElementById("dAddBtn");
 const dClearBtn  = document.getElementById("dClearBtn");
 const dTableBody = document.getElementById("dTableBody");
 
-// ----------------------- FUNÇÕES 1RM -----------------------
+// ----------------------- LOAD / SAVE -----------------------
 function loadData() {
-  try {
-    data1rm = JSON.parse(localStorage.getItem(STORAGE_1RM) || "{}");
-  } catch(e) { data1rm = {}; }
+  try { data1rm = JSON.parse(localStorage.getItem(STORAGE_1RM) || "{}"); }
+  catch(e) { data1rm = {}; }
 
-  try {
-    dataDiario = JSON.parse(localStorage.getItem(STORAGE_DIARIO) || "[]");
-  } catch(e) { dataDiario = []; }
+  try { dataDiario = JSON.parse(localStorage.getItem(STORAGE_DIARIO) || "[]"); }
+  catch(e) { dataDiario = []; }
 }
-
 function save1RM() {
   localStorage.setItem(STORAGE_1RM, JSON.stringify(data1rm));
 }
@@ -394,6 +391,7 @@ function saveDiario() {
   localStorage.setItem(STORAGE_DIARIO, JSON.stringify(dataDiario));
 }
 
+// ----------------------- 1RM -----------------------
 function initSelect() {
   sel.innerHTML = "";
   MOVES.forEach(m => {
@@ -413,6 +411,9 @@ function updateExerciseImage() {
     exerciseThumb.removeAttribute("src");
     return;
   }
+  exerciseThumb.onerror = () => {
+    exerciseThumb.style.display = "none";
+  };
   exerciseThumb.src = "imagens/" + file;
   exerciseThumb.style.display = "block";
 }
@@ -425,7 +426,7 @@ function formatKg(v) {
 function renderTable1RM() {
   body.innerHTML = "";
   const names = Object.keys(data1rm).sort();
-  if (names.length === 0) {
+  if (!names.length) {
     const tr = document.createElement("tr");
     const td = document.createElement("td");
     td.colSpan = 10;
@@ -457,7 +458,7 @@ addBtn.addEventListener("click", () => {
 
 sel.addEventListener("change", updateExerciseImage);
 
-// ----------------------- FUNÇÕES DIÁRIO -----------------------
+// ----------------------- DIÁRIO -----------------------
 function todayISO() {
   const d = new Date();
   const m = String(d.getMonth()+1).padStart(2,"0");
@@ -552,7 +553,7 @@ renderTable1RM();
 dDate.value = todayISO();
 renderDiario();
 
-// ----------------------- PWA -----------------------
+// ----------------------- SERVICE WORKER -----------------------
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
     navigator.serviceWorker.register("./service-worker.js")
@@ -563,4 +564,3 @@ if ("serviceWorker" in navigator) {
 
 </body>
 </html>
-
