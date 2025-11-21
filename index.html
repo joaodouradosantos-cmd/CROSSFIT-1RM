@@ -7,6 +7,7 @@
 
   <!-- Cor da barra de topo nos telemóveis -->
   <meta name="theme-color" content="#f2f2f2" />
+  <link rel="manifest" href="manifest.json" />
 
   <style>
     :root {
@@ -181,14 +182,19 @@
     .section { display: none; }
     .section.active { display: block; }
 
-    @media (max-width: 600px) {
-      .app {
-        padding: 12px;
-      }
+    /* Botão de apagar na tabela 1RM (pequeno) */
+    .btn-delete {
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid #e5e5e5;
+      background: #f97373;
+      color: #ffffff;
+      font-size: 0.75rem;
+      cursor: pointer;
+    }
 
-      h1 {
-        font-size: 1.4rem;
-      }
+    .btn-delete:hover {
+      background: #ef4444;
     }
   </style>
 </head>
@@ -241,6 +247,7 @@
               <th>85%</th>
               <th>90%</th>
               <th>95%</th>
+              <th></th> <!-- coluna do botão apagar -->
             </tr>
           </thead>
           <tbody id="tableBody"></tbody>
@@ -262,25 +269,25 @@
 
         <div class="field">
           <label>WOD</label>
-          <input id="wod" type="text">
+          <input id="wod" type="text" placeholder="Ex.: Cindy, EMOM 10’...">
         </div>
       </div>
 
       <div class="form-row">
         <div class="field">
           <label>Tipo</label>
-          <input id="tipo" type="text">
+          <input id="tipo" type="text" placeholder="Força, Metcon, Skill...">
         </div>
 
         <div class="field">
           <label>Resultado</label>
-          <input id="resultado" type="text">
+          <input id="resultado" type="text" placeholder="Ex.: 10 rondas, 120 kg, 12:35...">
         </div>
       </div>
 
       <div class="field">
         <label>Notas</label>
-        <textarea id="notas"></textarea>
+        <textarea id="notas" placeholder="Sensações, ajustes, técnica, etc."></textarea>
       </div>
 
       <div style="margin-top:8px;">
@@ -314,15 +321,41 @@
 <script>
 /* ===== 1RM ===== */
 const MOVES = [
-  "Chest Press","Back Squat","Front Squat","Overhead Squat","Deadlift","Sumo Deadlift",
-  "Romanian Deadlift (RDL)","Power Clean","Squat Clean","Clean & Jerk",
-  "Power Snatch","Squat Snatch","Push Press","Push Jerk","Split Jerk",
-  "Strict Press","Thruster","Barbell Row","Bent Over Row","Good Morning",
-  "Lunges com barra","Hip Thrust com barra","Dumbbell Press",
-  "Dumbbell Bench Press","Dumbbell Snatch","Dumbbell Clean",
-  "Dumbbell Clean & Jerk","Dumbbell Thruster","Dumbbell Row",
-  "Dumbbell Lunges","Kettlebell Swing","Kettlebell Clean","Kettlebell Snatch",
-  "Goblet Squat","Kettlebell Lunges"
+  "Chest Press",
+  "Back Squat",
+  "Front Squat",
+  "Overhead Squat",
+  "Deadlift",
+  "Sumo Deadlift",
+  "Romanian Deadlift (RDL)",
+  "Power Clean",
+  "Squat Clean",
+  "Clean & Jerk",
+  "Power Snatch",
+  "Squat Snatch",
+  "Push Press",
+  "Push Jerk",
+  "Split Jerk",
+  "Strict Press",
+  "Thruster",
+  "Barbell Row",
+  "Bent Over Row",
+  "Good Morning",
+  "Lunges com barra",
+  "Hip Thrust com barra",
+  "Dumbbell Press",
+  "Dumbbell Bench Press",
+  "Dumbbell Snatch",
+  "Dumbbell Clean",
+  "Dumbbell Clean & Jerk",
+  "Dumbbell Thruster",
+  "Dumbbell Row",
+  "Dumbbell Lunges",
+  "Kettlebell Swing",
+  "Kettlebell Clean",
+  "Kettlebell Snatch",
+  "Goblet Squat",
+  "Kettlebell Lunges"
 ];
 
 const PERC = [0.5,0.6,0.7,0.75,0.8,0.85,0.9,0.95];
@@ -333,38 +366,77 @@ const sel = document.getElementById("exercise");
 const rm = document.getElementById("oneRm");
 const bodyTable = document.getElementById("tableBody");
 
-/* preencher select */
-sel.innerHTML = MOVES.map(m => `<option>${m}</option>`).join("");
-
-function renderRm() {
-  bodyTable.innerHTML = Object.keys(dataRm).sort().map(name => `
-    <tr onclick="deleteEx('${name.replace(/'/g, "\\'")}')">
-      <td>${name}</td>
-      <td>${dataRm[name].toFixed(1)} kg</td>
-      ${PERC.map(p => `<td>${(dataRm[name]*p).toFixed(1)} kg</td>`).join("")}
-    </tr>
-  `).join("");
+/* preencher select com exercícios */
+function initSelect() {
+  sel.innerHTML = "";
+  MOVES.forEach(m => {
+    const opt = document.createElement("option");
+    opt.value = m;
+    opt.textContent = m;
+    sel.appendChild(opt);
+  });
 }
 
+/* formatar kg com uma casa decimal */
+function formatKg(v) {
+  return v.toFixed(1).replace(".", ",") + " kg";
+}
+
+/* apagar um exercício específico */
 function deleteEx(name) {
-  if (confirm(\`Apagar "\${name}"?\`)) {
+  if (!name) return;
+  if (confirm(`Apagar o exercício "${name}"?`)) {
     delete dataRm[name];
     localStorage.setItem(STORAGE_RM, JSON.stringify(dataRm));
     renderRm();
   }
 }
 
-document.getElementById("addBtn").onclick = () => {
+/* desenhar tabela 1RM */
+function renderRm() {
+  bodyTable.innerHTML = "";
+  Object.keys(dataRm).sort().forEach(name => {
+    const tr = document.createElement("tr");
+
+    const tdName = document.createElement("td");
+    tdName.textContent = name;
+    tr.appendChild(tdName);
+
+    const td1rm = document.createElement("td");
+    td1rm.textContent = formatKg(dataRm[name]);
+    tr.appendChild(td1rm);
+
+    PERC.forEach(p => {
+      const td = document.createElement("td");
+      td.textContent = formatKg(dataRm[name] * p);
+      tr.appendChild(td);
+    });
+
+    const tdDelete = document.createElement("td");
+    const btn = document.createElement("button");
+    btn.textContent = "🗑";
+    btn.className = "btn-delete";
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      deleteEx(name);
+    });
+    tdDelete.appendChild(btn);
+    tr.appendChild(tdDelete);
+
+    bodyTable.appendChild(tr);
+  });
+}
+
+/* guardar / actualizar 1RM */
+document.getElementById("addBtn").addEventListener("click", () => {
   const ex = sel.value;
   const val = parseFloat(rm.value);
-  if (!ex || !val) return;
+  if (!ex || !val || val <= 0) return;
   dataRm[ex] = val;
   localStorage.setItem(STORAGE_RM, JSON.stringify(dataRm));
   rm.value = "";
   renderRm();
-};
-
-renderRm();
+});
 
 /* ===== DIÁRIO ===== */
 const STORAGE_DIARY = "crossfit_diary";
@@ -378,50 +450,86 @@ const notasEl = document.getElementById("notas");
 const diaryBody = document.getElementById("diaryBody");
 
 function renderDiary() {
-  diaryBody.innerHTML = diary.map(d => `
-    <tr>
-      <td>${d.date||""}</td>
-      <td>${d.wod||""}</td>
-      <td>${d.tipo||""}</td>
-      <td>${d.resultado||""}</td>
-      <td>${d.notas||""}</td>
-    </tr>
-  `).join("");
+  diaryBody.innerHTML = "";
+  diary.forEach(d => {
+    const tr = document.createElement("tr");
+
+    const tdDate = document.createElement("td");
+    tdDate.textContent = d.date || "";
+    tr.appendChild(tdDate);
+
+    const tdWod = document.createElement("td");
+    tdWod.textContent = d.wod || "";
+    tr.appendChild(tdWod);
+
+    const tdTipo = document.createElement("td");
+    tdTipo.textContent = d.tipo || "";
+    tr.appendChild(tdTipo);
+
+    const tdRes = document.createElement("td");
+    tdRes.textContent = d.resultado || "";
+    tr.appendChild(tdRes);
+
+    const tdNotas = document.createElement("td");
+    tdNotas.textContent = d.notas || "";
+    tr.appendChild(tdNotas);
+
+    diaryBody.appendChild(tr);
+  });
 }
 
-document.getElementById("saveDiary").onclick = () => {
-  diary.unshift({
-    date: dateEl.value,
-    wod: wodEl.value,
-    tipo: tipoEl.value,
-    resultado: resEl.value,
-    notas: notasEl.value
-  });
+/* guardar registo no diário */
+document.getElementById("saveDiary").addEventListener("click", () => {
+  const entry = {
+    date: dateEl.value || "",
+    wod: wodEl.value.trim(),
+    tipo: tipoEl.value.trim(),
+    resultado: resEl.value.trim(),
+    notas: notasEl.value.trim()
+  };
+
+  if (!entry.date && !entry.wod && !entry.resultado && !entry.notas) return;
+
+  diary.unshift(entry);
   localStorage.setItem(STORAGE_DIARY, JSON.stringify(diary));
   renderDiary();
-};
 
-document.getElementById("clearDiary").onclick = () => {
-  if (confirm("Apagar todo o diário?")) {
-    diary = [];
-    localStorage.setItem(STORAGE_DIARY, "[]");
-    renderDiary();
-  }
-};
+  wodEl.value = "";
+  tipoEl.value = "";
+  resEl.value = "";
+  notasEl.value = "";
+});
 
-renderDiary();
+/* apagar TODO o diário (mantendo o raciocínio que já tinhas) */
+document.getElementById("clearDiary").addEventListener("click", () => {
+  if (!diary.length) return;
+  if (!confirm("Apagar todos os registos do diário?")) return;
+  diary = [];
+  localStorage.setItem(STORAGE_DIARY, JSON.stringify(diary));
+  renderDiary();
+});
 
 /* ===== TABS ===== */
-const tabs = document.querySelectorAll(".tab-btn");
-tabs.forEach(btn => {
-  btn.onclick = () => {
-    tabs.forEach(b => b.classList.remove("active"));
+document.querySelectorAll(".tab-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
     btn.classList.add("active");
 
+    const target = btn.dataset.target;
     document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
-    document.getElementById(btn.dataset.target).classList.add("active");
-  };
+    document.getElementById(target).classList.add("active");
+  });
 });
+
+/* INIT */
+initSelect();
+renderRm();
+renderDiary();
+
+/* preenche data de hoje por defeito */
+if (!dateEl.value) {
+  dateEl.value = new Date().toISOString().slice(0, 10);
+}
 </script>
 
 </body>
