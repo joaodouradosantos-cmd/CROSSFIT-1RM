@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Cross Moita – 1RM & Diário</title>
+  <meta name="theme-color" content="#020617" />
   <link rel="manifest" href="manifest.json" />
 
   <style>
@@ -11,13 +12,13 @@
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
 
-    /* FUNDO GERAL – CINZA PRATA BAÇO */
+    /* FUNDO GERAL ESCURO (igual ao que já tinhas) */
     body {
       margin: 0;
       min-height: 100vh;
       display: flex;
       justify-content: center;
-      background-color: #C0C0C0; /* cinza prata baço */
+      background-color: #020617;
       color: #e5e7eb;
     }
 
@@ -28,7 +29,6 @@
       margin: 16px;
       background: #020617;
       border-radius: 20px;
-      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
       box-sizing: border-box;
     }
 
@@ -205,7 +205,6 @@
         font-size: 1.3rem;
       }
 
-      /* em ecrãs pequenos escondemos colunas > 80% para não ficar apertado */
       th:nth-child(n+7),
       td:nth-child(n+7) {
         display: none;
@@ -256,7 +255,7 @@
           <tbody id="tableBody"></tbody>
         </table>
       </div>
-      <div class="hint">Dica: arrasta uma linha para a esquerda para apagar esse exercício.</div>
+      <div class="hint">Toca numa linha ou arrasta para a esquerda para apagar esse exercício.</div>
     </div>
   </section>
 
@@ -354,32 +353,46 @@ function formatKg(v) {
   return v.toFixed(1).replace(".", ",") + " kg";
 }
 
-/* desenha a tabela e prepara swipe para apagar */
+// função comum para apagar um exercício
+function deleteExercise(exName) {
+  if (!exName) return;
+  const ok = confirm(`Apagar o exercício "${exName}" da tabela?`);
+  if (!ok) return;
+  delete dataRm[exName];
+  localStorage.setItem(STORAGE_RM, JSON.stringify(dataRm));
+  renderRm();
+}
+
+/* desenha a tabela e prepara interações */
 function renderRm() {
   bodyTable.innerHTML = "";
   Object.keys(dataRm).sort().forEach(name => {
     const tr = document.createElement("tr");
-    tr.dataset.exName = name;       // guardar nome do exercício na linha
-    tr.classList.add("rm-row");     // marca como linha 1RM
-
+    tr.dataset.exName = name;
+    tr.classList.add("rm-row");
     tr.innerHTML = `<td>${name}</td>
       <td>${formatKg(dataRm[name])}</td>
       ${PERCENTS.map(p => `<td>${formatKg(dataRm[name] * p)}</td>`).join("")}`;
-
     bodyTable.appendChild(tr);
   });
-
-  setupSwipeToDelete();
+  setupRowInteractions();
 }
 
-/* swipe para a ESQUERDA numa linha apaga esse exercício */
-function setupSwipeToDelete() {
+/* clique + swipe para apagar */
+function setupRowInteractions() {
   const rows = document.querySelectorAll("tr.rm-row");
 
   rows.forEach(row => {
     let startX = 0;
     let startY = 0;
 
+    // toque simples: clicar apaga (com confirmação)
+    row.addEventListener("click", () => {
+      const exName = row.dataset.exName;
+      deleteExercise(exName);
+    });
+
+    // swipe para a esquerda
     row.addEventListener("touchstart", e => {
       const touch = e.touches[0];
       startX = touch.clientX;
@@ -394,17 +407,9 @@ function setupSwipeToDelete() {
       const dx = endX - startX;
       const dy = endY - startY;
 
-      // movimento claro para a ESQUERDA, mais horizontal que vertical
       if (dx < -50 && Math.abs(dx) > Math.abs(dy)) {
         const exName = row.dataset.exName;
-        if (!exName) return;
-
-        const ok = confirm(`Apagar o exercício "${exName}" da tabela?`);
-        if (!ok) return;
-
-        delete dataRm[exName];
-        localStorage.setItem(STORAGE_RM, JSON.stringify(dataRm));
-        renderRm();
+        deleteExercise(exName);
       }
     }, { passive: true });
   });
