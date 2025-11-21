@@ -10,6 +10,7 @@
     :root {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
+
     body {
       margin: 0;
       background: #0f172a;
@@ -17,289 +18,139 @@
       display: flex;
       justify-content: center;
     }
+
     .app {
       width: 100%;
       max-width: 900px;
       padding: 16px;
-      box-sizing: border-box;
     }
-    header {
+
+    h1 {
       text-align: center;
-      margin-bottom: 12px;
     }
-    #appLogo {
-      max-width: 220px;
-      height: auto;
-      display: block;
-      margin: 0 auto 4px auto;
-    }
-    .subtitle {
-      font-size: 0.9rem;
-      color: #9ca3af;
-    }
+
     .card {
       background: #020617;
       border-radius: 14px;
       padding: 12px;
       margin-bottom: 16px;
-      box-shadow: 0 8px 25px rgba(0,0,0,0.5);
     }
+
     .form-row {
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
       margin-bottom: 8px;
     }
+
     label {
       font-size: 0.8rem;
       color: #9ca3af;
-      display: block;
-      margin-bottom: 4px;
     }
-    input, select, textarea, button {
-      padding: 8px 10px;
+
+    input, select, button {
+      padding: 8px;
       border-radius: 10px;
       background: #020617;
       color: #e5e7eb;
       border: 1px solid #1e293b;
-      font: inherit;
-      box-sizing: border-box;
     }
-    textarea {
-      resize: vertical;
-      min-height: 70px;
-    }
-    input:focus, select:focus, textarea:focus {
+
+    input:focus, select:focus {
       outline: none;
       border-color: #22c55e;
-      box-shadow: 0 0 0 1px #22c55e55;
     }
-    .field {
-      flex: 1;
-      min-width: 140px;
-    }
+
     .btn-primary {
       background: #22c55e;
       border-color: #22c55e;
       color: #022c12;
-      font-weight: 600;
+      font-weight: bold;
       cursor: pointer;
-      white-space: nowrap;
     }
-    .btn-primary:active {
-      transform: scale(0.98);
-    }
-    .btn-small {
-      padding: 4px 8px;
-      font-size: 0.75rem;
-      border-radius: 999px;
-      cursor: pointer;
-      background: #111827;
-      border-color: #374151;
-      color: #e5e7eb;
-    }
-    .btn-small.danger {
-      border-color: #b91c1c;
-      color: #fecaca;
-    }
+
     table {
       width: 100%;
       border-collapse: collapse;
       font-size: 0.8rem;
     }
+
     th, td {
       padding: 6px;
       text-align: center;
       border-bottom: 1px solid #1e293b;
-      white-space: nowrap;
-      vertical-align: top;
     }
-    th {
-      color: #9ca3af;
-    }
-    td.ex-name {
-      text-align: left;
-    }
+
     .scroll {
       max-height: 60vh;
       overflow: auto;
       border: 1px solid #1e293b;
       border-radius: 10px;
     }
-    .muted {
-      font-size: 0.75rem;
-      color: #9ca3af;
-    }
-    .tabs {
-      display: flex;
-      margin-bottom: 12px;
-      gap: 6px;
-    }
-    .tab-btn {
-      flex: 1;
-      padding: 8px 10px;
-      border-radius: 999px;
-      border: 1px solid #1f2937;
-      background: #020617;
-      color: #9ca3af;
-      font-size: 0.9rem;
-      cursor: pointer;
-    }
-    .tab-btn.active {
-      background: #22c55e;
-      border-color: #22c55e;
-      color: #022c12;
-      font-weight: 600;
-    }
-    .section {
-      display: none;
-    }
-    .section.active {
-      display: block;
-    }
-    .exercise-field {
+
+    .exercise-option {
       display: flex;
       align-items: center;
       gap: 8px;
+      padding: 4px 0;
     }
-    .exercise-thumb {
-      width: 40px;
-      height: 40px;
-      object-fit: cover;
-      background: #020617;
-      border: 1px solid #1e293b;
-      display: none; /* só mostra se a imagem existir */
+
+    .exercise-option img {
+      width: 26px;
+      height: 26px;
+      object-fit: contain;
     }
-    @media (max-width: 600px) {
-      th:nth-child(n+7),
-      td:nth-child(n+7) {
-        display: none;
-      }
+
+    #appLogo {
+      display: block;
+      margin: 0 auto 16px auto;
+      width: 140px;
+      height: auto;
     }
   </style>
 </head>
+
 <body>
 <div class="app">
 
-  <header>
-    <!-- logótipo da box -->
-    <img id="appLogo" src="imagens/crossmoita_logo.png" alt="Cross Moita Health & Fitness" />
-    <div class="subtitle">1RM & Diário de Treinos – uso pessoal</div>
-  </header>
+  <!-- LOGO -->
+  <img id="appLogo" src="imagens/crossmoita_logo.png" alt="Cross Moita Logo" />
 
-  <div class="tabs">
-    <button class="tab-btn active" data-target="sec-1rm">1RM</button>
-    <button class="tab-btn" data-target="sec-diario">Diário</button>
+  <h1>1RM Tracker & Diário</h1>
+
+  <div class="card">
+    <div class="form-row">
+      <div style="flex:1">
+        <label>Exercício</label>
+        <select id="exercise"></select>
+      </div>
+
+      <div style="flex:1">
+        <label>1RM (kg)</label>
+        <input id="oneRm" type="number" step="0.5" />
+      </div>
+    </div>
+
+    <button class="btn-primary" id="addBtn">Guardar / Atualizar</button>
   </div>
 
-  <!-- SECÇÃO 1RM -->
-  <div id="sec-1rm" class="section active">
-    <div class="card">
-      <div class="form-row">
-        <div class="field">
-          <label for="exercise">Exercício</label>
-          <div class="exercise-field">
-            <select id="exercise"></select>
-            <img id="exerciseThumb" class="exercise-thumb" alt="Exercício" />
-          </div>
-        </div>
-        <div class="field">
-          <label for="oneRm">1RM (kg)</label>
-          <input id="oneRm" type="number" step="0.5" placeholder="Ex.: 150" />
-        </div>
-      </div>
-      <button class="btn-primary" id="addBtn">Guardar / Atualizar</button>
-      <p class="muted">Os valores ficam guardados neste dispositivo (localStorage).</p>
-    </div>
-
-    <div class="card">
-      <div class="scroll">
-        <table>
-          <thead>
+  <div class="card">
+    <div class="scroll">
+      <table>
+        <thead>
           <tr>
-            <th>Exercício</th>
-            <th>1RM</th>
-            <th>50%</th>
-            <th>60%</th>
-            <th>70%</th>
-            <th>75%</th>
-            <th>80%</th>
-            <th>85%</th>
-            <th>90%</th>
-            <th>95%</th>
+            <th>Exercício</th><th>1RM</th><th>50%</th><th>60%</th><th>70%</th>
+            <th>75%</th><th>80%</th><th>85%</th><th>90%</th><th>95%</th>
           </tr>
-          </thead>
-          <tbody id="tableBody"></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
-  <!-- SECÇÃO DIÁRIO -->
-  <div id="sec-diario" class="section">
-    <div class="card">
-      <div class="form-row">
-        <div class="field">
-          <label for="dDate">Data</label>
-          <input id="dDate" type="date" />
-        </div>
-        <div class="field">
-          <label for="dWod">WOD / Treino</label>
-          <input id="dWod" type="text" placeholder="Ex.: Cindy, EMOM 10’..." />
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="field">
-          <label for="dTipo">Tipo</label>
-          <select id="dTipo">
-            <option value="AMRAP">AMRAP</option>
-            <option value="FOR TIME">FOR TIME</option>
-            <option value="EMOM">EMOM</option>
-            <option value="TÉCNICA">Técnica / Força</option>
-            <option value="OUTRO">Outro</option>
-          </select>
-        </div>
-        <div class="field">
-          <label for="dResultado">Resultado</label>
-          <input id="dResultado" type="text" placeholder="Ex.: 17 rondas, 12:35, 5x5 @ 80kg..." />
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="field" style="flex:1 1 100%">
-          <label for="dNotas">Notas</label>
-          <textarea id="dNotas" placeholder="Como te sentiste, RX/scaled, PRs, etc."></textarea>
-        </div>
-      </div>
-      <button class="btn-primary" id="dAddBtn">Guardar treino</button>
-    </div>
-
-    <div class="card">
-      <div class="form-row" style="justify-content: space-between; align-items: center;">
-        <span class="muted">Histórico (últimos primeiro)</span>
-        <button class="btn-small danger" id="dClearBtn">Apagar todos</button>
-      </div>
-      <div class="scroll">
-        <table>
-          <thead>
-          <tr>
-            <th>Data</th>
-            <th>WOD</th>
-            <th>Tipo</th>
-            <th>Resultado</th>
-            <th>Notas</th>
-            <th></th>
-          </tr>
-          </thead>
-          <tbody id="dTableBody"></tbody>
-        </table>
-      </div>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
     </div>
   </div>
 
 </div>
 
 <script>
-// ----------------------- EXERCÍCIOS -----------------------
 const MOVES = [
   "Chest Press",
   "Back Squat","Front Squat","Overhead Squat","Deadlift","Sumo Deadlift",
@@ -313,253 +164,49 @@ const MOVES = [
   "Goblet Squat","Kettlebell Lunges"
 ];
 
-// Mapa exercício -> ficheiro de imagem (quando existirem)
-const IMAGE_MAP = {
-  "Chest Press": "chest_press.png",
-  "Back Squat": "back_squat.png",
-  "Front Squat": "front_squat.png",
-  "Overhead Squat": "overhead_squat.png",
-  "Deadlift": "deadlift.png",
-  "Sumo Deadlift": "sumo_deadlift.png",
-  "Romanian Deadlift (RDL)": "romanian_deadlift_rdl.png",
-  "Power Clean": "power_clean.png",
-  "Squat Clean": "squat_clean.png",
-  "Clean & Jerk": "clean_and_jerk.png",
-  "Power Snatch": "power_snatch.png",
-  "Squat Snatch": "squat_snatch.png",
-  "Push Press": "push_press.png",
-  "Push Jerk": "push_jerk.png",
-  "Split Jerk": "split_jerk.png",
-  "Strict Press": "strict_press.png",
-  "Thruster": "thruster.png",
-  "Barbell Row": "barbell_row.png",
-  "Bent Over Row": "bent_over_row.png",
-  "Good Morning": "good_morning.png",
-  "Lunges com barra": "lunges_com_barra.png",
-  "Hip Thrust com barra": "hip_thrust_com_barra.png",
-  "Dumbbell Press": "dumbbell_press.png",
-  "Dumbbell Bench Press": "dumbbell_bench_press.png",
-  "Dumbbell Snatch": "dumbbell_snatch.png",
-  "Dumbbell Clean": "dumbbell_clean.png",
-  "Dumbbell Clean & Jerk": "dumbbell_clean_and_jerk.png",
-  "Dumbbell Thruster": "dumbbell_thruster.png",
-  "Dumbbell Row": "dumbbell_row.png",
-  "Dumbbell Lunges": "dumbbell_lunges.png",
-  "Kettlebell Swing": "kettlebell_swing.png",
-  "Kettlebell Clean": "kettlebell_clean.png",
-  "Kettlebell Snatch": "kettlebell_snatch.png",
-  "Goblet Squat": "goblet_squat.png",
-  "Kettlebell Lunges": "kettlebell_lunges.png"
-};
-
 const PERCENTS = [0.5,0.6,0.7,0.75,0.8,0.85,0.9,0.95];
-const STORAGE_1RM = "crossfit_1rm_pwa";
-const STORAGE_DIARIO = "crossfit_diario_pwa";
+const STORAGE = "crossfit_1rm";
+let data = JSON.parse(localStorage.getItem(STORAGE) || "{}");
 
-let data1rm = {};
-let dataDiario = [];
+const sel = document.getElementById("exercise");
+const rm = document.getElementById("oneRm");
+const bodyTable = document.getElementById("tableBody");
 
-// elementos 1RM
-const sel   = document.getElementById("exercise");
-const rm    = document.getElementById("oneRm");
-const body  = document.getElementById("tableBody");
-const addBtn = document.getElementById("addBtn");
-const exerciseThumb = document.getElementById("exerciseThumb");
-
-// elementos diário
-const dDate      = document.getElementById("dDate");
-const dWod       = document.getElementById("dWod");
-const dTipo      = document.getElementById("dTipo");
-const dResultado = document.getElementById("dResultado");
-const dNotas     = document.getElementById("dNotas");
-const dAddBtn    = document.getElementById("dAddBtn");
-const dClearBtn  = document.getElementById("dClearBtn");
-const dTableBody = document.getElementById("dTableBody");
-
-// ----------------------- LOAD / SAVE -----------------------
-function loadData() {
-  try { data1rm = JSON.parse(localStorage.getItem(STORAGE_1RM) || "{}"); }
-  catch(e) { data1rm = {}; }
-
-  try { dataDiario = JSON.parse(localStorage.getItem(STORAGE_DIARIO) || "[]"); }
-  catch(e) { dataDiario = []; }
-}
-function save1RM() {
-  localStorage.setItem(STORAGE_1RM, JSON.stringify(data1rm));
-}
-function saveDiario() {
-  localStorage.setItem(STORAGE_DIARIO, JSON.stringify(dataDiario));
-}
-
-// ----------------------- 1RM -----------------------
-function initSelect() {
+function defaultSelect(){
   sel.innerHTML = "";
   MOVES.forEach(m => {
-    const o = document.createElement("option");
-    o.value = m;
-    o.textContent = m;
-    sel.appendChild(o);
+    const opt = document.createElement("option");
+    opt.value = m;
+    opt.textContent = m;
+    sel.appendChild(opt);
   });
-  updateExerciseImage();
 }
 
-function updateExerciseImage() {
+document.getElementById("addBtn").onclick = () => {
   const ex = sel.value;
-  const file = IMAGE_MAP[ex];
-  if (!file) {
-    exerciseThumb.style.display = "none";
-    exerciseThumb.removeAttribute("src");
-    return;
-  }
-  exerciseThumb.onerror = () => {
-    exerciseThumb.style.display = "none";
-  };
-  exerciseThumb.src = "imagens/" + file;
-  exerciseThumb.style.display = "block";
-}
-
-function formatKg(v) {
-  if (isNaN(v)) return "-";
-  return v.toFixed(1).replace(".", ",") + " kg";
-}
-
-function renderTable1RM() {
-  body.innerHTML = "";
-  const names = Object.keys(data1rm).sort();
-  if (!names.length) {
-    const tr = document.createElement("tr");
-    const td = document.createElement("td");
-    td.colSpan = 10;
-    td.textContent = "Ainda não tens exercícios registados.";
-    td.className = "muted";
-    tr.appendChild(td);
-    body.appendChild(tr);
-    return;
-  }
-  names.forEach(name => {
-    const tr = document.createElement("tr");
-    tr.innerHTML =
-      "<td class='ex-name'>" + name + "</td>" +
-      "<td>" + formatKg(data1rm[name]) + "</td>" +
-      PERCENTS.map(p => "<td>" + formatKg(data1rm[name] * p) + "</td>").join("");
-    body.appendChild(tr);
-  });
-}
-
-addBtn.addEventListener("click", () => {
-  const ex  = sel.value;
-  const val = parseFloat((rm.value || "").replace(",", "."));
-  if (!ex || !val || val <= 0) return;
-  data1rm[ex] = val;
-  save1RM();
-  renderTable1RM();
+  const val = parseFloat(rm.value);
+  if(!ex || !val) return;
+  data[ex] = val;
+  localStorage.setItem(STORAGE, JSON.stringify(data));
+  render();
   rm.value = "";
-});
+};
 
-sel.addEventListener("change", updateExerciseImage);
+function format(v){ return v.toFixed(1).replace('.',',') + " kg"; }
 
-// ----------------------- DIÁRIO -----------------------
-function todayISO() {
-  const d = new Date();
-  const m = String(d.getMonth()+1).padStart(2,"0");
-  const day = String(d.getDate()).padStart(2,"0");
-  return d.getFullYear() + "-" + m + "-" + day;
-}
-
-function renderDiario() {
-  dTableBody.innerHTML = "";
-  if (!dataDiario.length) {
+function render(){
+  bodyTable.innerHTML = "";
+  Object.keys(data).sort().forEach(name => {
     const tr = document.createElement("tr");
-    const td = document.createElement("td");
-    td.colSpan = 6;
-    td.textContent = "Ainda não tens treinos registados.";
-    td.className = "muted";
-    tr.appendChild(td);
-    dTableBody.appendChild(tr);
-    return;
-  }
-
-  const entries = [...dataDiario].sort((a,b) => (b.id || 0) - (a.id || 0));
-
-  entries.forEach(entry => {
-    const tr = document.createElement("tr");
-    tr.innerHTML =
-      "<td>" + (entry.date || "") + "</td>" +
-      "<td>" + (entry.wod || "") + "</td>" +
-      "<td>" + (entry.tipo || "") + "</td>" +
-      "<td>" + (entry.resultado || "") + "</td>" +
-      "<td style='white-space:normal;'>" + (entry.notas || "") + "</td>";
-
-    const tdAcoes = document.createElement("td");
-    const btnApagar = document.createElement("button");
-    btnApagar.textContent = "X";
-    btnApagar.className = "btn-small danger";
-    btnApagar.addEventListener("click", () => {
-      if (confirm("Apagar este treino?")) {
-        dataDiario = dataDiario.filter(e => e.id !== entry.id);
-        saveDiario();
-        renderDiario();
-      }
-    });
-    tdAcoes.appendChild(btnApagar);
-    tr.appendChild(tdAcoes);
-    dTableBody.appendChild(tr);
+    tr.innerHTML = `<td>${name}</td>
+      <td>${format(data[name])}</td>
+      ${PERCENTS.map(p => `<td>${format(data[name]*p)}</td>`).join("")}`;
+    bodyTable.appendChild(tr);
   });
 }
 
-dAddBtn.addEventListener("click", () => {
-  const date = dDate.value || todayISO();
-  const wod  = (dWod.value || "").trim();
-  const tipo = dTipo.value;
-  const resultado = (dResultado.value || "").trim();
-  const notas     = (dNotas.value || "").trim();
-
-  if (!wod && !resultado && !notas) return;
-
-  const entry = { id: Date.now(), date, wod, tipo, resultado, notas };
-  dataDiario.push(entry);
-  saveDiario();
-  renderDiario();
-
-  dWod.value = "";
-  dResultado.value = "";
-  dNotas.value = "";
-});
-
-dClearBtn.addEventListener("click", () => {
-  if (!dataDiario.length) return;
-  if (confirm("Apagar todos os treinos do diário?")) {
-    dataDiario = [];
-    saveDiario();
-    renderDiario();
-  }
-});
-
-// ----------------------- TABS -----------------------
-document.querySelectorAll(".tab-btn").forEach(btn => {
-  btn.addEventListener("click", () => {
-    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
-    document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
-    btn.classList.add("active");
-    const target = btn.getAttribute("data-target");
-    document.getElementById(target).classList.add("active");
-  });
-});
-
-// ----------------------- INIT -----------------------
-loadData();
-initSelect();
-renderTable1RM();
-dDate.value = todayISO();
-renderDiario();
-
-// ----------------------- SERVICE WORKER -----------------------
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("./service-worker.js")
-      .catch(err => console.log("SW falhou:", err));
-  });
-}
+defaultSelect();
+render();
 </script>
 
 </body>
