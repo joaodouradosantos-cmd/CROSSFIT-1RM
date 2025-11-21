@@ -3,12 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CrossFit 1RM Tracker</title>
-
+  <title>Cross Moita – 1RM & Diário</title>
   <link rel="manifest" href="manifest.json" />
 
   <style>
-    :root { font-family: system-ui, sans-serif; }
+    :root {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
     body {
       margin: 0;
       background: #0f172a;
@@ -22,15 +23,19 @@
       padding: 16px;
       box-sizing: border-box;
     }
-    h1 {
+    header {
       text-align: center;
-      margin-bottom: 4px;
+      margin-bottom: 12px;
+    }
+    #appLogo {
+      max-width: 220px;
+      height: auto;
+      display: block;
+      margin: 0 auto 4px auto;
     }
     .subtitle {
-      text-align: center;
       font-size: 0.9rem;
       color: #9ca3af;
-      margin-bottom: 16px;
     }
     .card {
       background: #020617;
@@ -152,31 +157,51 @@
     .section.active {
       display: block;
     }
+    .exercise-field {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .exercise-thumb {
+      width: 40px;
+      height: 40px;
+      object-fit: cover;
+      background: #020617;
+      border: 1px solid #1e293b;
+      display: none;
+    }
     @media (max-width: 600px) {
       th:nth-child(n+7),
       td:nth-child(n+7) {
-        display: none; /* em ecrãs pequenos mostra só até 80% */
+        display: none;
       }
     }
   </style>
 </head>
 <body>
 <div class="app">
-  <h1>CrossFit 1RM Tracker</h1>
-  <div class="subtitle">Regista o teu 1RM e acompanha os teus treinos num só sítio.</div>
+
+  <header>
+    <!-- novo logótipo Cross Moita -->
+    <img id="appLogo" src="imagens/crossmoita_logo.png" alt="Cross Moita Health & Fitness" />
+    <div class="subtitle">1RM & Diário de Treinos – uso pessoal</div>
+  </header>
 
   <div class="tabs">
     <button class="tab-btn active" data-target="sec-1rm">1RM</button>
-    <button class="tab-btn" data-target="sec-diario">Diário de treinos</button>
+    <button class="tab-btn" data-target="sec-diario">Diário</button>
   </div>
 
-  <!-- SECÇÃO 1: 1RM -->
+  <!-- SECÇÃO 1RM -->
   <div id="sec-1rm" class="section active">
     <div class="card">
       <div class="form-row">
         <div class="field">
           <label for="exercise">Exercício</label>
-          <select id="exercise"></select>
+          <div class="exercise-field">
+            <select id="exercise"></select>
+            <img id="exerciseThumb" class="exercise-thumb" alt="Exercício" />
+          </div>
         </div>
         <div class="field">
           <label for="oneRm">1RM (kg)</label>
@@ -184,25 +209,25 @@
         </div>
       </div>
       <button class="btn-primary" id="addBtn">Guardar / Atualizar</button>
-      <p class="muted">Os dados ficam guardados apenas neste dispositivo (localStorage).</p>
+      <p class="muted">Os valores ficam guardados neste dispositivo (localStorage).</p>
     </div>
 
     <div class="card">
       <div class="scroll">
         <table>
           <thead>
-            <tr>
-              <th>Exercício</th>
-              <th>1RM</th>
-              <th>50%</th>
-              <th>60%</th>
-              <th>70%</th>
-              <th>75%</th>
-              <th>80%</th>
-              <th>85%</th>
-              <th>90%</th>
-              <th>95%</th>
-            </tr>
+          <tr>
+            <th>Exercício</th>
+            <th>1RM</th>
+            <th>50%</th>
+            <th>60%</th>
+            <th>70%</th>
+            <th>75%</th>
+            <th>80%</th>
+            <th>85%</th>
+            <th>90%</th>
+            <th>95%</th>
+          </tr>
           </thead>
           <tbody id="tableBody"></tbody>
         </table>
@@ -210,7 +235,7 @@
     </div>
   </div>
 
-  <!-- SECÇÃO 2: DIÁRIO DE TREINOS -->
+  <!-- SECÇÃO DIÁRIO -->
   <div id="sec-diario" class="section">
     <div class="card">
       <div class="form-row">
@@ -242,39 +267,39 @@
       <div class="form-row">
         <div class="field" style="flex:1 1 100%">
           <label for="dNotas">Notas</label>
-          <textarea id="dNotas" placeholder="Como te sentiste, PRs, ajustes (RX / scaled)..."></textarea>
+          <textarea id="dNotas" placeholder="Como te sentiste, RX/scaled, PRs, etc."></textarea>
         </div>
       </div>
       <button class="btn-primary" id="dAddBtn">Guardar treino</button>
-      <p class="muted">Os treinos são guardados apenas neste dispositivo. Podes apagar ou atualizar mais tarde.</p>
     </div>
 
     <div class="card">
       <div class="form-row" style="justify-content: space-between; align-items: center;">
-        <span class="muted">Histórico de treinos (últimos primeiro)</span>
+        <span class="muted">Histórico (últimos primeiro)</span>
         <button class="btn-small danger" id="dClearBtn">Apagar todos</button>
       </div>
       <div class="scroll">
         <table>
           <thead>
-            <tr>
-              <th>Data</th>
-              <th>WOD</th>
-              <th>Tipo</th>
-              <th>Resultado</th>
-              <th>Notas</th>
-              <th></th>
-            </tr>
+          <tr>
+            <th>Data</th>
+            <th>WOD</th>
+            <th>Tipo</th>
+            <th>Resultado</th>
+            <th>Notas</th>
+            <th></th>
+          </tr>
           </thead>
           <tbody id="dTableBody"></tbody>
         </table>
       </div>
     </div>
   </div>
+
 </div>
 
 <script>
-/* ---------- DADOS 1RM ---------- */
+// ----------------------- CONFIG EXERCÍCIOS -----------------------
 const MOVES = [
   "Chest Press",
   "Back Squat","Front Squat","Overhead Squat","Deadlift","Sumo Deadlift",
@@ -288,6 +313,45 @@ const MOVES = [
   "Goblet Squat","Kettlebell Lunges"
 ];
 
+// mapa exercício -> ficheiro de imagem (pasta /imagens)
+const IMAGE_MAP = {
+  "Chest Press": "chest_press.png",
+  "Back Squat": "back_squat.png",
+  "Front Squat": "front_squat.png",
+  "Overhead Squat": "overhead_squat.png",
+  "Deadlift": "deadlift.png",
+  "Sumo Deadlift": "sumo_deadlift.png",
+  "Romanian Deadlift (RDL)": "romanian_deadlift_rdl.png",
+  "Power Clean": "power_clean.png",
+  "Squat Clean": "squat_clean.png",
+  "Clean & Jerk": "clean_and_jerk.png",
+  "Power Snatch": "power_snatch.png",
+  "Squat Snatch": "squat_snatch.png",
+  "Push Press": "push_press.png",
+  "Push Jerk": "push_jerk.png",
+  "Split Jerk": "split_jerk.png",
+  "Strict Press": "strict_press.png",
+  "Thruster": "thruster.png",
+  "Barbell Row": "barbell_row.png",
+  "Bent Over Row": "bent_over_row.png",
+  "Good Morning": "good_morning.png",
+  "Lunges com barra": "lunges_com_barra.png",
+  "Hip Thrust com barra": "hip_thrust_com_barra.png",
+  "Dumbbell Press": "dumbbell_press.png",
+  "Dumbbell Bench Press": "dumbbell_bench_press.png",
+  "Dumbbell Snatch": "dumbbell_snatch.png",
+  "Dumbbell Clean": "dumbbell_clean.png",
+  "Dumbbell Clean & Jerk": "dumbbell_clean_and_jerk.png",
+  "Dumbbell Thruster": "dumbbell_thruster.png",
+  "Dumbbell Row": "dumbbell_row.png",
+  "Dumbbell Lunges": "dumbbell_lunges.png",
+  "Kettlebell Swing": "kettlebell_swing.png",
+  "Kettlebell Clean": "kettlebell_clean.png",
+  "Kettlebell Snatch": "kettlebell_snatch.png",
+  "Goblet Squat": "goblet_squat.png",
+  "Kettlebell Lunges": "kettlebell_lunges.png"
+};
+
 const PERCENTS = [0.5,0.6,0.7,0.75,0.8,0.85,0.9,0.95];
 const STORAGE_1RM = "crossfit_1rm_pwa";
 const STORAGE_DIARIO = "crossfit_diario_pwa";
@@ -295,7 +359,24 @@ const STORAGE_DIARIO = "crossfit_diario_pwa";
 let data1rm = {};
 let dataDiario = [];
 
-// Helpers
+// elementos 1RM
+const sel   = document.getElementById("exercise");
+const rm    = document.getElementById("oneRm");
+const body  = document.getElementById("tableBody");
+const addBtn = document.getElementById("addBtn");
+const exerciseThumb = document.getElementById("exerciseThumb");
+
+// elementos diário
+const dDate      = document.getElementById("dDate");
+const dWod       = document.getElementById("dWod");
+const dTipo      = document.getElementById("dTipo");
+const dResultado = document.getElementById("dResultado");
+const dNotas     = document.getElementById("dNotas");
+const dAddBtn    = document.getElementById("dAddBtn");
+const dClearBtn  = document.getElementById("dClearBtn");
+const dTableBody = document.getElementById("dTableBody");
+
+// ----------------------- FUNÇÕES 1RM -----------------------
 function loadData() {
   try {
     data1rm = JSON.parse(localStorage.getItem(STORAGE_1RM) || "{}");
@@ -313,18 +394,27 @@ function saveDiario() {
   localStorage.setItem(STORAGE_DIARIO, JSON.stringify(dataDiario));
 }
 
-const sel   = document.getElementById("exercise");
-const rm    = document.getElementById("oneRm");
-const body  = document.getElementById("tableBody");
-const addBtn = document.getElementById("addBtn");
-
 function initSelect() {
   sel.innerHTML = "";
   MOVES.forEach(m => {
     const o = document.createElement("option");
-    o.value = o.textContent = m;
+    o.value = m;
+    o.textContent = m;
     sel.appendChild(o);
   });
+  updateExerciseImage();
+}
+
+function updateExerciseImage() {
+  const ex = sel.value;
+  const file = IMAGE_MAP[ex];
+  if (!file) {
+    exerciseThumb.style.display = "none";
+    exerciseThumb.removeAttribute("src");
+    return;
+  }
+  exerciseThumb.src = "imagens/" + file;
+  exerciseThumb.style.display = "block";
 }
 
 function formatKg(v) {
@@ -365,16 +455,9 @@ addBtn.addEventListener("click", () => {
   rm.value = "";
 });
 
-/* ---------- DIÁRIO ---------- */
-const dDate      = document.getElementById("dDate");
-const dWod       = document.getElementById("dWod");
-const dTipo      = document.getElementById("dTipo");
-const dResultado = document.getElementById("dResultado");
-const dNotas     = document.getElementById("dNotas");
-const dAddBtn    = document.getElementById("dAddBtn");
-const dClearBtn  = document.getElementById("dClearBtn");
-const dTableBody = document.getElementById("dTableBody");
+sel.addEventListener("change", updateExerciseImage);
 
+// ----------------------- FUNÇÕES DIÁRIO -----------------------
 function todayISO() {
   const d = new Date();
   const m = String(d.getMonth()+1).padStart(2,"0");
@@ -395,18 +478,17 @@ function renderDiario() {
     return;
   }
 
-  // mostrar últimos primeiro
   const entries = [...dataDiario].sort((a,b) => (b.id || 0) - (a.id || 0));
 
   entries.forEach(entry => {
     const tr = document.createElement("tr");
-    const dataFmt = entry.date || "";
     tr.innerHTML =
-      "<td>" + dataFmt + "</td>" +
+      "<td>" + (entry.date || "") + "</td>" +
       "<td>" + (entry.wod || "") + "</td>" +
       "<td>" + (entry.tipo || "") + "</td>" +
       "<td>" + (entry.resultado || "") + "</td>" +
       "<td style='white-space:normal;'>" + (entry.notas || "") + "</td>";
+
     const tdAcoes = document.createElement("td");
     const btnApagar = document.createElement("button");
     btnApagar.textContent = "X";
@@ -433,10 +515,7 @@ dAddBtn.addEventListener("click", () => {
 
   if (!wod && !resultado && !notas) return;
 
-  const entry = {
-    id: Date.now(),
-    date, wod, tipo, resultado, notas
-  };
+  const entry = { id: Date.now(), date, wod, tipo, resultado, notas };
   dataDiario.push(entry);
   saveDiario();
   renderDiario();
@@ -455,7 +534,7 @@ dClearBtn.addEventListener("click", () => {
   }
 });
 
-/* ---------- TABS ---------- */
+// ----------------------- TABS -----------------------
 document.querySelectorAll(".tab-btn").forEach(btn => {
   btn.addEventListener("click", () => {
     document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
@@ -466,14 +545,14 @@ document.querySelectorAll(".tab-btn").forEach(btn => {
   });
 });
 
-/* ---------- INIT ---------- */
+// ----------------------- INIT -----------------------
 loadData();
 initSelect();
 renderTable1RM();
 dDate.value = todayISO();
 renderDiario();
 
-// Service worker
+// ----------------------- PWA -----------------------
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
     navigator.serviceWorker.register("./service-worker.js")
@@ -481,7 +560,6 @@ if ("serviceWorker" in navigator) {
   });
 }
 </script>
+
 </body>
 </html>
-
-
