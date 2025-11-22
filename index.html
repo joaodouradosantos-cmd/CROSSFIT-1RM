@@ -182,7 +182,7 @@
     .section { display: none; }
     .section.active { display: block; }
 
-    /* Botão de apagar na tabela 1RM (pequeno) */
+    /* Botão de apagar nas tabelas (pequeno) */
     .btn-delete {
       padding: 4px 8px;
       border-radius: 999px;
@@ -291,7 +291,6 @@
 
       <div style="margin-top:8px;">
         <button class="btn-primary" id="saveDiary">Guardar</button>
-        <button class="btn-danger" id="clearDiary">Apagar tudo</button>
       </div>
 
     </div>
@@ -306,6 +305,7 @@
               <th>Tipo</th>
               <th>Resultado</th>
               <th>Notas</th>
+              <th></th> <!-- botão apagar linha -->
             </tr>
           </thead>
           <tbody id="diaryBody"></tbody>
@@ -450,7 +450,7 @@ const diaryBody = document.getElementById("diaryBody");
 
 function renderDiary() {
   diaryBody.innerHTML = "";
-  diary.forEach(d => {
+  diary.forEach((d, index) => {
     const tr = document.createElement("tr");
 
     const tdDate = document.createElement("td");
@@ -472,6 +472,20 @@ function renderDiary() {
     const tdNotas = document.createElement("td");
     tdNotas.textContent = d.notas || "";
     tr.appendChild(tdNotas);
+
+    const tdDelete = document.createElement("td");
+    const btn = document.createElement("button");
+    btn.textContent = "🗑";
+    btn.className = "btn-delete";
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (!confirm("Apagar este registo do diário?")) return;
+      diary.splice(index, 1);
+      localStorage.setItem(STORAGE_DIARY, JSON.stringify(diary));
+      renderDiary();
+    });
+    tdDelete.appendChild(btn);
+    tr.appendChild(tdDelete);
 
     diaryBody.appendChild(tr);
   });
@@ -499,15 +513,6 @@ document.getElementById("saveDiary").addEventListener("click", () => {
   notasEl.value = "";
 });
 
-/* apagar TODO o diário (mantendo o raciocínio que já tinhas) */
-document.getElementById("clearDiary").addEventListener("click", () => {
-  if (!diary.length) return;
-  if (!confirm("Apagar todos os registos do diário?")) return;
-  diary = [];
-  localStorage.setItem(STORAGE_DIARY, JSON.stringify(diary));
-  renderDiary();
-});
-
 /* ===== TABS ===== */
 document.querySelectorAll(".tab-btn").forEach(btn => {
   btn.addEventListener("click", () => {
@@ -532,16 +537,4 @@ if (!dateEl.value) {
 </script>
 
 </body>
-  <script>
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("service-worker.js")
-    .then(() => console.log("SW registado"))
-    .catch(err => console.log("Erro SW:", err));
-}
-</script>
-
 </html>
-
-
-
-
