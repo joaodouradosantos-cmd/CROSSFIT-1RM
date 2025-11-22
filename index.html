@@ -182,7 +182,7 @@
     .section { display: none; }
     .section.active { display: block; }
 
-    /* Botão de apagar na tabela 1RM (pequeno) */
+    /* Botão de apagar nas tabelas (1RM e Diário) */
     .btn-delete {
       padding: 4px 8px;
       border-radius: 999px;
@@ -292,7 +292,6 @@
 
       <div style="margin-top:8px;">
         <button class="btn-primary" id="saveDiary">Guardar</button>
-        <button class="btn-danger" id="clearDiary">Apagar tudo</button>
       </div>
 
     </div>
@@ -307,6 +306,7 @@
               <th>Tipo</th>
               <th>Resultado</th>
               <th>Notas</th>
+              <th></th> <!-- coluna do lixo individual -->
             </tr>
           </thead>
           <tbody id="diaryBody"></tbody>
@@ -358,9 +358,7 @@ const MOVES = [
   "Kettlebell Lunges"
 ];
 
-/* agora com 25% incluído */
-const PERC = [0.25, 0.5, 0.6, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95];
-
+const PERC = [0.5,0.6,0.7,0.75,0.8,0.85,0.9,0.95];
 const STORAGE_RM = "crossfit_1rm";
 let dataRm = JSON.parse(localStorage.getItem(STORAGE_RM) || "{}");
 
@@ -451,9 +449,19 @@ const resEl = document.getElementById("resultado");
 const notasEl = document.getElementById("notas");
 const diaryBody = document.getElementById("diaryBody");
 
+/* apagar um registo específico do diário */
+function deleteDiary(index) {
+  if (index < 0 || index >= diary.length) return;
+  if (!confirm("Apagar este registo do diário?")) return;
+  diary.splice(index, 1);
+  localStorage.setItem(STORAGE_DIARY, JSON.stringify(diary));
+  renderDiary();
+}
+
+/* desenhar tabela do diário */
 function renderDiary() {
   diaryBody.innerHTML = "";
-  diary.forEach(d => {
+  diary.forEach((d, index) => {
     const tr = document.createElement("tr");
 
     const tdDate = document.createElement("td");
@@ -475,6 +483,14 @@ function renderDiary() {
     const tdNotas = document.createElement("td");
     tdNotas.textContent = d.notas || "";
     tr.appendChild(tdNotas);
+
+    const tdDelete = document.createElement("td");
+    const btn = document.createElement("button");
+    btn.textContent = "🗑";
+    btn.className = "btn-delete";
+    btn.addEventListener("click", () => deleteDiary(index));
+    tdDelete.appendChild(btn);
+    tr.appendChild(tdDelete);
 
     diaryBody.appendChild(tr);
   });
@@ -500,15 +516,6 @@ document.getElementById("saveDiary").addEventListener("click", () => {
   tipoEl.value = "";
   resEl.value = "";
   notasEl.value = "";
-});
-
-/* apagar TODO o diário */
-document.getElementById("clearDiary").addEventListener("click", () => {
-  if (!diary.length) return;
-  if (!confirm("Apagar todos os registos do diário?")) return;
-  diary = [];
-  localStorage.setItem(STORAGE_DIARY, JSON.stringify(diary));
-  renderDiary();
 });
 
 /* ===== TABS ===== */
