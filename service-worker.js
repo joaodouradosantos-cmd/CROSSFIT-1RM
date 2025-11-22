@@ -1,28 +1,52 @@
-const CACHE = "crossfit-1rm-cache-v1";
-const FILES = [
+const CACHE_NAME = "crossfit-cache-v6"; 
+// ↑ Quando quiseres forçar atualização basta mudar para v7, v8, v9...
+
+const URLS_TO_CACHE = [
   "./",
   "./index.html",
-  "./manifest.json"
+  "./manifest.json",
+  "./imagens/crossmoita_logo.png"
 ];
 
-self.addEventListener("install", event => {
+// INSTALAÇÃO — cria cache
+self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE).then(cache => cache.addAll(FILES))
+    caches.open(CACHE_NAME).then(cache => {
+      return cache.addAll(URLS_TO_CACHE);
+    })
   );
+  self.skipWaiting(); // força ativação imediata
 });
 
-self.addEventListener("activate", event => {
+// ATIVAÇÃO — apaga caches antigos automaticamente
+self.addEventListener("activate", (event) => {
   event.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(
-        keys.filter(k => k !== CACHE).map(k => caches.delete(k))
-      )
-    )
+    caches.keys().then(keys => {
+      return Promise.all(
+        keys
+          .filter(k => k !== CACHE_NAME)
+          .map(k => caches.delete(k))
+      );
+    })
   );
+  self.clients.claim();
 });
 
-self.addEventListener("fetch", event => {
+// FETCH — sempre que existirem ficheiros novos, atualiza
+self.addEventListener("fetch", (event) => {
   event.respondWith(
-    caches.match(event.request).then(resp => resp || fetch(event.request))
+    caches.match(event.request).then(cached => {
+      const networkFetch = fetch(event.request)
+        .then(response => {
+          // Atualiza cache com versões novas
+          caches
+            .open(CACHE_NAME)
+            .then(cache => cache.put(event.request, response.clone()));
+          return response;
+        })
+        .catch(() => cached);
+
+      return cached || networkFetch;
+    })
   );
 });
